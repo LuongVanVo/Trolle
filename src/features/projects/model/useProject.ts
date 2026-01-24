@@ -31,9 +31,32 @@ export const useProject = () => {
       throw apiError;
     }
   };
+
+  // get all member of workspace but not in workspace
+  const getAllMemberOfWorkspaceButNotInWorkspace = async (
+    workspaceId: string,
+  ) => {
+    try {
+      const response =
+        await projectApi.getAllMemberOfWorkspaceButNotInWorkspace(workspaceId);
+      if (!response)
+        throw new Error(
+          "Failed to get all member of workspace but not in workspace",
+        );
+      return response;
+    } catch (err) {
+      const apiError = err as ApiError;
+      console.log(
+        `Failed to get all member of workspace but not in workspace: ${apiError.message}`,
+      );
+      throw apiError;
+    }
+  };
+
   return {
     projects,
     getAllProjectsOfUser,
     createWorkspace,
+    getAllMemberOfWorkspaceButNotInWorkspace,
   };
 };

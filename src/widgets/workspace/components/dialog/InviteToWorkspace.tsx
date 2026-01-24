@@ -23,7 +23,7 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
 
     useEffect(() => {
         if (isOpen) {
-            setInvitedUsers([]); // ✅ Reset khi mở dialog
+            setInvitedUsers([]); 
             fetchAllMemberOfWorkspaceButNotInWorkspaceData();
         }
     }, [isOpen, workspaceId]);
@@ -32,7 +32,6 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
         try {
             const data = await fetchAllMemberOfWorkspaceButNotInWorkspace(workspaceId);
             setAllUsers(data);
-            console.log("✅ Loaded users:", data);
         } catch (err) {
             console.error(`Failed to fetch users: ${err}`);
         }
@@ -43,8 +42,7 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
         
         setIsSubmitting(true);
         try {
-            // TODO: Call API to invite by email
-            console.log("📧 Send invitation to:", email.trim());
+            
             setEmail("");
         } catch (err) {
             console.error(`Failed to send invitation: ${err}`);
@@ -58,10 +56,7 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
         
         setIsSubmitting(true);
         try {
-            // TODO: Call API to invite user
-            console.log("👤 Invite user:", user);
             
-            // ✅ Add to invited list
             setInvitedUsers([...invitedUsers, user.id]);
         } catch (err) {
             console.error(`Failed to invite user: ${err}`);
@@ -151,7 +146,7 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
                                             onClick={() => handleQuickInvite(user)}
                                             className="bg-black hover:bg-gray-800 text-white px-6"
                                             size="sm"
-                                            // disabled={invitedUsers.includes(user.id) || isSubmitting}
+                                            disabled={invitedUsers.includes(user.id) || isSubmitting}
                                         >
                                             {invitedUsers.includes(user.id) ? "Invited" : "Invite"}
                                         </Button>

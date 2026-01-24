@@ -2,11 +2,14 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { projectApi } from "../projects/api/projectApi";
 import type { Project } from "../projects/api/type";
+import type { GetAllMemberOfWorkspaceButNotInWorkspaceResponse } from "../projects/index";
 
 interface WorkspaceContextType {
     projects: Project[];
     isLoading: boolean;
     getAllProjectsOfUser: () => Promise<void>;
+    clearWorkspaces: () => void;
+    fetchAllMemberOfWorkspaceButNotInWorkspace: (workspaceId: string) => Promise<GetAllMemberOfWorkspaceButNotInWorkspaceResponse[]>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
@@ -29,15 +32,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const clearWorkspaces = () => {
+        setProjects([]);
+    }
+
     // Fetch projects khi mount
     useEffect(() => {
         getAllProjectsOfUser();
     }, []);
 
+    // fetch all member of workspace but not in workspace
+    const fetchAllMemberOfWorkspaceButNotInWorkspace = async (workspaceId: string): Promise<GetAllMemberOfWorkspaceButNotInWorkspaceResponse[]> => {
+        try {
+            const data = await projectApi.getAllMemberOfWorkspaceButNotInWorkspace(workspaceId);
+            return data as unknown as GetAllMemberOfWorkspaceButNotInWorkspaceResponse[];
+        } catch (err) {
+            console.error(`Failed to fetch all member of workspace but not in workspace: ${err}`);
+            throw err;
+        }
+    }
     const value: WorkspaceContextType = {
         projects,
         isLoading,
         getAllProjectsOfUser,
+        clearWorkspaces,
+        fetchAllMemberOfWorkspaceButNotInWorkspace,
     }
 
     return (
