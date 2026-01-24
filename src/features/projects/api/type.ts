@@ -35,3 +35,8 @@ export interface GetAllMemberOfWorkspaceButNotInWorkspaceResponse {
   avatar_url: string;
   roles: string[];
 }
+
+export interface InviteMemberToWorkspaceRequest {
+  workspaceId: string;
+  email: string;
+}

@@ -1,6 +1,10 @@
 import type { ApiError } from "@/features/auth/login/api/type";
 import { projectApi } from "../api/projectApi";
-import type { CreateWorkspaceRequest, Project } from "../api/type";
+import type {
+  CreateWorkspaceRequest,
+  InviteMemberToWorkspaceRequest,
+  Project,
+} from "../api/type";
 import { useState } from "react";
 
 export const useProject = () => {
@@ -53,10 +57,24 @@ export const useProject = () => {
     }
   };
 
+  // invite member to workspace
+  const inviteMemberToWorkspace = async (
+    request: InviteMemberToWorkspaceRequest,
+  ) => {
+    try {
+      await projectApi.inviteMemberToWorkspace(request);
+    } catch (err) {
+      const apiError = err as ApiError;
+      console.log(`Failed to invite member to workspace: ${apiError.message}`);
+      throw apiError;
+    }
+  };
+
   return {
     projects,
     getAllProjectsOfUser,
     createWorkspace,
     getAllMemberOfWorkspaceButNotInWorkspace,
+    inviteMemberToWorkspace,
   };
 };

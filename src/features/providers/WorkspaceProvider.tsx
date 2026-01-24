@@ -1,7 +1,7 @@
 // src/features/projects/model/ProjectProvider.tsx
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { projectApi } from "../projects/api/projectApi";
-import type { Project } from "../projects/api/type";
+import type { InviteMemberToWorkspaceRequest, Project } from "../projects/api/type";
 import type { GetAllMemberOfWorkspaceButNotInWorkspaceResponse } from "../projects/index";
 
 interface WorkspaceContextType {
@@ -10,6 +10,7 @@ interface WorkspaceContextType {
     getAllProjectsOfUser: () => Promise<void>;
     clearWorkspaces: () => void;
     fetchAllMemberOfWorkspaceButNotInWorkspace: (workspaceId: string) => Promise<GetAllMemberOfWorkspaceButNotInWorkspaceResponse[]>;
+    handleInviteMemberToWorkspace: (request: InviteMemberToWorkspaceRequest) => Promise<void>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
@@ -51,12 +52,27 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             throw err;
         }
     }
+
+    // invite member to workspace
+    const handleInviteMemberToWorkspace = async (request: InviteMemberToWorkspaceRequest) => {
+        setIsLoading(true);
+        try {
+            await projectApi.inviteMemberToWorkspace(request);
+        } catch (err) {
+            console.error(`Failed to invite member to workspace: ${err}`);
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const value: WorkspaceContextType = {
         projects,
         isLoading,
         getAllProjectsOfUser,
         clearWorkspaces,
         fetchAllMemberOfWorkspaceButNotInWorkspace,
+        handleInviteMemberToWorkspace
     }
 
     return (

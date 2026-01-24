@@ -2,39 +2,42 @@ import { Button } from "@/shared/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger, DialogClose, DialogHeader } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import { useEffect, useState } from "react";
-import type { GetAllMemberOfWorkspaceButNotInWorkspaceResponse } from "@/features/projects/index";
-import { useWorkspaceContext } from "@/features/providers/WorkspaceProvider";
+import type { GetAllMemberOfWorkspaceButNotInBoardResponse } from "@/features/boards/index";
+import { useBoardDetail } from "@/features/providers/index";
+import { useBoards } from "@/features/boards";
 import conKhiImg from "@/shared/assets/img/conKhi.jpg";
 
-interface InviteToWorkspaceProps {
+interface DialogInviteToBoardProps {
     isOpen?: boolean;
     onOpenChange?: (open: boolean) => void;
     triggerButton?: React.ReactNode;
-    workspaceId: string;
+    boardId: string;
+    onMembersInvited?: (user: GetAllMemberOfWorkspaceButNotInBoardResponse) => void;
 }
 
-export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspaceId }: InviteToWorkspaceProps) {
+export function DialogInviteToBoard({ isOpen, onOpenChange, triggerButton, boardId, onMembersInvited }: DialogInviteToBoardProps) {
     const [email, setEmail] = useState("");
+    const [invitedUsers, setInvitedUsers] = useState<string[]>([]);
+    const [allMemberOfWorkspaceButNotInBoard, setAllMemberOfWorkspaceButNotInBoard] = useState<GetAllMemberOfWorkspaceButNotInBoardResponse[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [allUsers, setAllUsers] = useState<GetAllMemberOfWorkspaceButNotInWorkspaceResponse[]>([]);
-    const [invitedUsers, setInvitedUsers] = useState<string[]>([]); // ✅ State riêng để track invited users
-    
-    const { fetchAllMemberOfWorkspaceButNotInWorkspace } = useWorkspaceContext();
+
+    const { fetchAllMemberOfWorkspaceButNotInBoard } = useBoardDetail();
+    const { inviteUserToBoard } = useBoards();
+
 
     useEffect(() => {
         if (isOpen) {
-            setInvitedUsers([]); // ✅ Reset khi mở dialog
-            fetchAllMemberOfWorkspaceButNotInWorkspaceData();
+            fetchAllMemberOfWorkspaceButNotInBoardData();
         }
-    }, [isOpen, workspaceId]);
+    }, [isOpen, boardId]);
 
-    const fetchAllMemberOfWorkspaceButNotInWorkspaceData = async () => {
+    const fetchAllMemberOfWorkspaceButNotInBoardData = async () => {
         try {
-            const data = await fetchAllMemberOfWorkspaceButNotInWorkspace(workspaceId);
-            setAllUsers(data);
-            console.log("✅ Loaded users:", data);
+            const data = await fetchAllMemberOfWorkspaceButNotInBoard(boardId);
+            setAllMemberOfWorkspaceButNotInBoard(data as unknown as GetAllMemberOfWorkspaceButNotInBoardResponse[]);
         } catch (err) {
-            console.error(`Failed to fetch users: ${err}`);
+            console.error(`Failed to fetch all member of workspace but not in board: ${err}`);
+            throw err;
         }
     }
 
@@ -43,28 +46,44 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
         
         setIsSubmitting(true);
         try {
-            // TODO: Call API to invite by email
-            console.log("📧 Send invitation to:", email.trim());
+            await inviteUserToBoard({
+                boardId,
+                invited_email: email.trim(),
+            })
+
             setEmail("");
+            onMembersInvited?.({
+                id: "",
+                name: email.trim(),
+                email: email.trim(),
+                avatar_url: "",
+                roles: [],
+                permissions: [],
+            });
         } catch (err) {
             console.error(`Failed to send invitation: ${err}`);
+            throw err;
         } finally {
             setIsSubmitting(false);
         }
     }
 
-    const handleQuickInvite = async (user: GetAllMemberOfWorkspaceButNotInWorkspaceResponse) => {
+    const handleQuickInvite = async (user: GetAllMemberOfWorkspaceButNotInBoardResponse) => {
         if (invitedUsers.includes(user.id) || isSubmitting) return;
         
         setIsSubmitting(true);
         try {
-            // TODO: Call API to invite user
-            console.log("👤 Invite user:", user);
-            
-            // ✅ Add to invited list
+            await inviteUserToBoard({
+                boardId,
+                invited_email: user.email,
+                invited_user_id: user.id,
+            });
+
             setInvitedUsers([...invitedUsers, user.id]);
+            onMembersInvited?.(user);
         } catch (err) {
             console.error(`Failed to invite user: ${err}`);
+            throw err;
         } finally {
             setIsSubmitting(false);
         }
@@ -78,11 +97,11 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
                 <DialogHeader>
                     <div className="flex items-center justify-between">
                         <DialogTitle className="text-xl font-semibold">
-                            Invite to Workspace
+                            Invite to Board
                         </DialogTitle>
                     </div>
                     <DialogDescription className="text-sm text-gray-600">
-                        Invite team members to collaborate on this workspace.
+                        Invite team members to collaborate on this board.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -102,7 +121,7 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
                                     handleSendInvitation();
                                 }
                             }}
-                            className="w-full mt-2"
+                            className="w-full"
                         />
                         <Button
                             onClick={handleSendInvitation}
@@ -119,45 +138,39 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
                             Quick Invite
                         </label>
                         <div className="space-y-2">
-                            {allUsers.length === 0 ? (
-                                <p className="text-sm text-gray-500 text-center py-4">
-                                    No users available to invite
-                                </p>
-                            ) : (
-                                allUsers.map((user) => (
-                                    <div
-                                        key={user.id}
-                                        className="flex items-center justify-between py-2"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <img
-                                                src={user.avatar_url || conKhiImg}
-                                                alt={user.name}
-                                                className="w-10 h-10 rounded-full object-cover"
-                                                onError={(e) => {
-                                                    e.currentTarget.src = conKhiImg;
-                                                }}
-                                            />
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900">
-                                                    {user.name}
-                                                </p>
-                                                <p className="text-xs text-gray-500">
-                                                    {user.email}
-                                                </p>
-                                            </div>
+                        {allMemberOfWorkspaceButNotInBoard.map((user) => (
+                                <div
+                                    key={user.id}
+                                    className="flex items-center justify-between py-2"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <img
+                                            src={user.avatar_url?.trim() || conKhiImg}
+                                            alt={user.name}
+                                            className="w-10 h-10 rounded-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.src = conKhiImg;
+                                            }}
+                                        />
+                                        <div>
+                                            <p className="text-sm font-medium text-gray-900">
+                                                {user.name}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                {user.email}
+                                            </p>
                                         </div>
-                                        <Button
-                                            onClick={() => handleQuickInvite(user)}
-                                            className="bg-black hover:bg-gray-800 text-white px-6"
-                                            size="sm"
-                                            // disabled={invitedUsers.includes(user.id) || isSubmitting}
-                                        >
-                                            {invitedUsers.includes(user.id) ? "Invited" : "Invite"}
-                                        </Button>
                                     </div>
-                                ))
-                            )}
+                                    <Button
+                                        onClick={() => handleQuickInvite(user)}
+                                        className="bg-black hover:bg-gray-800 text-white px-6"
+                                        size="sm"
+                                        disabled={invitedUsers.includes(user.id) || isSubmitting}
+                                    >
+                                        {invitedUsers.includes(user.id) ? "Invited" : "Invite"}
+                                    </Button>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

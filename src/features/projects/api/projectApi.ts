@@ -4,6 +4,7 @@ import type {
   CreateWorkspaceRequest,
   CreateWorkspaceResponse,
   GetAllMemberOfWorkspaceButNotInWorkspaceResponse,
+  InviteMemberToWorkspaceRequest,
   Project,
 } from "./type";
 
@@ -33,6 +34,20 @@ export const projectApi = {
         "{workspaceId}",
         workspaceId,
       ),
+    );
+  },
+
+  // invite member to workspace
+  inviteMemberToWorkspace: (request: InviteMemberToWorkspaceRequest) => {
+    const { workspaceId, email } = request;
+    return fetchFactory.post<void>(
+      ProjectEndpoint.INVITE_MEMBER_TO_WORKSPACE.replace(
+        "{workspaceId}",
+        workspaceId,
+      ),
+      {
+        email,
+      },
     );
   },
 };

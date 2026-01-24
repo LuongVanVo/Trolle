@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { GetAllMemberOfWorkspaceButNotInWorkspaceResponse } from "@/features/projects/index";
 import { useWorkspaceContext } from "@/features/providers/WorkspaceProvider";
 import conKhiImg from "@/shared/assets/img/conKhi.jpg";
+import { toast } from "sonner";
 
 interface InviteToWorkspaceProps {
     isOpen?: boolean;
@@ -15,15 +16,17 @@ interface InviteToWorkspaceProps {
 
 export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspaceId }: InviteToWorkspaceProps) {
     const [email, setEmail] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSendingEmail, setIsSendingEmail] = useState(false); // ✅ State riêng cho Send Invitation
+    const [invitingUserIds, setInvitingUserIds] = useState<string[]>([]); // ✅ Track users đang được invite
     const [allUsers, setAllUsers] = useState<GetAllMemberOfWorkspaceButNotInWorkspaceResponse[]>([]);
-    const [invitedUsers, setInvitedUsers] = useState<string[]>([]); // ✅ State riêng để track invited users
+    const [invitedUsers, setInvitedUsers] = useState<string[]>([]); 
     
-    const { fetchAllMemberOfWorkspaceButNotInWorkspace } = useWorkspaceContext();
+    const { fetchAllMemberOfWorkspaceButNotInWorkspace, handleInviteMemberToWorkspace } = useWorkspaceContext();
 
     useEffect(() => {
         if (isOpen) {
-            setInvitedUsers([]); 
+            setInvitedUsers([]);
+            setInvitingUserIds([]); 
             fetchAllMemberOfWorkspaceButNotInWorkspaceData();
         }
     }, [isOpen, workspaceId]);
@@ -38,30 +41,48 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
     }
 
     const handleSendInvitation = async () => {
-        if (!email.trim() || isSubmitting) return;
+        if (!email.trim() || isSendingEmail) return;
         
-        setIsSubmitting(true);
+        setIsSendingEmail(true); 
         try {
-            
+            await handleInviteMemberToWorkspace({
+                workspaceId,
+                email: email.trim(),
+            });
             setEmail("");
+            toast.success(`Invitation successfully sent to ${email.trim()}.`, {
+                position: "top-center",
+            });
         } catch (err) {
             console.error(`Failed to send invitation: ${err}`);
+            toast.error("Failed to send invitation. Please try again.", {
+                position: "top-center",
+            });
         } finally {
-            setIsSubmitting(false);
+            setIsSendingEmail(false);
         }
     }
 
     const handleQuickInvite = async (user: GetAllMemberOfWorkspaceButNotInWorkspaceResponse) => {
-        if (invitedUsers.includes(user.id) || isSubmitting) return;
+        if (invitedUsers.includes(user.id) || invitingUserIds.includes(user.id)) return;
         
-        setIsSubmitting(true);
+        setInvitingUserIds([...invitingUserIds, user.id]); 
         try {
-            
+            await handleInviteMemberToWorkspace({
+                workspaceId,
+                email: user.email,
+            });
             setInvitedUsers([...invitedUsers, user.id]);
+            toast.success(`Invitation successfully sent to ${user.email.trim()}.`, {
+                position: "top-center",
+            });
         } catch (err) {
             console.error(`Failed to invite user: ${err}`);
+            toast.error("Failed to invite user. Please try again.", {
+                position: "top-center",
+            });
         } finally {
-            setIsSubmitting(false);
+            setInvitingUserIds(prev => prev.filter(id => id !== user.id)); 
         }
     }
 
@@ -93,7 +114,7 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter" && !isSubmitting) {
+                                if (e.key === "Enter" && !isSendingEmail) {
                                     handleSendInvitation();
                                 }
                             }}
@@ -102,9 +123,9 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
                         <Button
                             onClick={handleSendInvitation}
                             className="w-full bg-black hover:bg-gray-800 text-white"
-                            disabled={!email.trim() || isSubmitting}
+                            disabled={!email.trim() || isSendingEmail}
                         >
-                            {isSubmitting ? "Sending..." : "Send Invitation"}
+                            {isSendingEmail ? "Sending..." : "Send Invitation"}
                         </Button>
                     </div>
 
@@ -119,39 +140,44 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
                                     No users available to invite
                                 </p>
                             ) : (
-                                allUsers.map((user) => (
-                                    <div
-                                        key={user.id}
-                                        className="flex items-center justify-between py-2"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <img
-                                                src={user.avatar_url || conKhiImg}
-                                                alt={user.name}
-                                                className="w-10 h-10 rounded-full object-cover"
-                                                onError={(e) => {
-                                                    e.currentTarget.src = conKhiImg;
-                                                }}
-                                            />
-                                            <div>
-                                                <p className="text-sm font-medium text-gray-900">
-                                                    {user.name}
-                                                </p>
-                                                <p className="text-xs text-gray-500">
-                                                    {user.email}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <Button
-                                            onClick={() => handleQuickInvite(user)}
-                                            className="bg-black hover:bg-gray-800 text-white px-6"
-                                            size="sm"
-                                            disabled={invitedUsers.includes(user.id) || isSubmitting}
+                                allUsers.map((user) => {
+                                    const isInviting = invitingUserIds.includes(user.id);
+                                    const isInvited = invitedUsers.includes(user.id);
+                                    
+                                    return (
+                                        <div
+                                            key={user.id}
+                                            className="flex items-center justify-between py-2"
                                         >
-                                            {invitedUsers.includes(user.id) ? "Invited" : "Invite"}
-                                        </Button>
-                                    </div>
-                                ))
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src={user.avatar_url || conKhiImg}
+                                                    alt={user.name}
+                                                    className="w-10 h-10 rounded-full object-cover"
+                                                    onError={(e) => {
+                                                        e.currentTarget.src = conKhiImg;
+                                                    }}
+                                                />
+                                                <div>
+                                                    <p className="text-sm font-medium text-gray-900">
+                                                        {user.name}
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {user.email}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                onClick={() => handleQuickInvite(user)}
+                                                className="bg-black hover:bg-gray-800 text-white px-6"
+                                                size="sm"
+                                                disabled={isInvited || isInviting}
+                                            >
+                                                {isInviting ? "Inviting..." : isInvited ? "Invited" : "Invite"}
+                                            </Button>
+                                        </div>
+                                    );
+                                })
                             )}
                         </div>
                     </div>
@@ -160,7 +186,7 @@ export function InviteToWorkspace({ isOpen, onOpenChange, triggerButton, workspa
                 {/* Footer */}
                 <div className="flex justify-end pt-4 border-t">
                     <DialogClose asChild>
-                        <Button variant="outline" className="px-6" disabled={isSubmitting}>
+                        <Button variant="outline" className="px-6">
                             Cancel
                         </Button>
                     </DialogClose>
