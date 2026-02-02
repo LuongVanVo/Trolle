@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { FiX, FiTrash2, FiArrowRight, FiChevronDown } from "react-icons/fi";
