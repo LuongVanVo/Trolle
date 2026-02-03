@@ -1,4 +1,4 @@
-import { FiEdit, FiMoreHorizontal, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiCopy, FiEdit, FiMoreHorizontal, FiMove, FiPlus, FiTrash2 } from "react-icons/fi";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { List } from "@/features/lists/api/type";
 import { useCardDetailContext } from "@/features/providers/CardDetailProvider";
@@ -162,7 +162,7 @@ export function BoardList({ list, index, isDraggingList }: BoardListProps) {
                                 </button>
                                 </DropdownMenuTrigger>
 
-                                <DropdownMenuContent align="end" sideOffset={8} className="w-48">
+                                <DropdownMenuContent align="end" sideOffset={8} className="w-[200px]">
                                 <DropdownMenuItem
                                     className="flex items-center gap-2 cursor-pointer"
                                     onClick={handleEditName}
@@ -181,6 +181,18 @@ export function BoardList({ list, index, isDraggingList }: BoardListProps) {
                                     Delete
                                     </DropdownMenuItem>
                                 </AlertDialogTrigger>
+
+                                    {/* Move List to another board */}
+                                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                                        <FiMove className="w-4 h-4" />
+                                        Move to another board
+                                    </DropdownMenuItem>
+
+                                    {/* Copy list to another board */}
+                                    <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
+                                        <FiCopy className="w-4 h-4" />
+                                        Copy to another board
+                                    </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
