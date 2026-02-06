@@ -25,6 +25,12 @@ export const API_ENDPOINTS = {
     INVITE_MEMBER_TO_WORKSPACE: "/api/workspaces/members/{workspaceId}",
     ARCHIVE_WORKSPACE: "/api/workspaces/status/{workspaceId}",
     UPDATE_WORKSPACE: "/api/workspaces/{workspaceId}",
+    CREATE_LINK_INVITATION_TO_WORKSPACE:
+      "/api/workspaces/{workspaceId}/generate-invitation-link",
+    DISABLE_LINK_INVITATION_TO_WORKSPACE:
+      "/api/workspaces/{workspaceId}/invite-link/{token}",
+    GET_CURRENT_LINK_INVITATION_TO_WORKSPACE:
+      "/api/workspaces/{workspaceId}/invitation-link",
   },
   BOARD: {
     GET_BOARD_OF_WORKSPACE: "/boards",
