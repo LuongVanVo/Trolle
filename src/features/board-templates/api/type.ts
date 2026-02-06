@@ -1,3 +1,5 @@
+import type { Board } from "@/features/boards/index";
+
 export interface ApiResponse<T> {
   statusCode: number;
   message: string;
@@ -35,4 +37,13 @@ export interface GetAllBoardTemplatesResponse {
   boards: BoardTemplate[];
   lists: ListTemplate[];
   cards: CardTemplate[];
+}
+
+export interface CreateBoardFromTemplateRequest {
+  workspaceId: string;
+  templateId: string;
+}
+
+export interface CreateBoardFromTemplateResponse {
+  board: Board;
 }

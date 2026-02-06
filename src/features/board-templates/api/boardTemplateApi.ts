@@ -1,6 +1,11 @@
 import { fetchFactory } from "@/shared/api";
-import type { ApiResponse, GetAllBoardTemplatesResponse } from "./type";
-import { BoardTemplateEndpoint } from "@/shared/api/endpoints";
+import type {
+  ApiResponse,
+  CreateBoardFromTemplateRequest,
+  CreateBoardFromTemplateResponse,
+  GetAllBoardTemplatesResponse,
+} from "./type";
+import { BoardEndpoint, BoardTemplateEndpoint } from "@/shared/api/endpoints";
 
 export const boardTemplateApi = {
   getAllBoardTemplates: async (): Promise<GetAllBoardTemplatesResponse> => {
@@ -13,5 +18,15 @@ export const boardTemplateApi = {
       lists: [],
       cards: [],
     };
+  },
+
+  // create board template
+  createBoardTemplate: async (
+    request: CreateBoardFromTemplateRequest,
+  ): Promise<CreateBoardFromTemplateResponse> => {
+    return await fetchFactory.post<CreateBoardFromTemplateResponse>(
+      BoardEndpoint.CREATE_BOARD_FROM_TEMPLATE,
+      request,
+    );
   },
 };

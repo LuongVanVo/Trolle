@@ -4,4 +4,6 @@ export type {
   BoardTemplate,
   ListTemplate,
   CardTemplate,
+  CreateBoardFromTemplateRequest,
+  CreateBoardFromTemplateResponse,
 } from "./api/type";

@@ -1,5 +1,9 @@
 import type { ApiError } from "@/shared/api/fetchFactory";
-import type { GetAllBoardTemplatesResponse } from "../api/type";
+import type {
+  CreateBoardFromTemplateRequest,
+  CreateBoardFromTemplateResponse,
+  GetAllBoardTemplatesResponse,
+} from "../api/type";
 import { boardTemplateApi } from "../api/boardTemplateApi";
 
 export const useBoardTemplates = () => {
@@ -12,16 +16,26 @@ export const useBoardTemplates = () => {
         return data;
       } catch (err) {
         const apiError = err as ApiError;
-        alert(apiError.message);
-        return {
-          boards: [],
-          lists: [],
-          cards: [],
-        };
+        throw apiError;
       }
     };
 
+  // create board template
+  const createBoardTemplate = async (
+    request: CreateBoardFromTemplateRequest,
+  ): Promise<CreateBoardFromTemplateResponse> => {
+    try {
+      const data = await boardTemplateApi.createBoardTemplate(request);
+      if (!data) throw new Error("Failed to create board template");
+      return { board: data as any };
+    } catch (err) {
+      const apiError = err as ApiError;
+      throw apiError;
+    }
+  };
+
   return {
     getAllBoardTemplates,
+    createBoardTemplate,
   };
 };

@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
     GET_ALL_MEMBER_OF_BOARD: "/boards/{boardId}/members",
     CREATE_LABEL_ON_BOARD: "/boards/{boardId}/labels",
     GET_ALL_LABELS_OF_BOARD: "/boards/{boardId}/labels",
+    CREATE_BOARD_FROM_TEMPLATE: "/boards/template",
   },
   CARD: {
     GET_ALL_CARDS_OF_BOARD: "/boards/{boardId}/cards?archived=false",

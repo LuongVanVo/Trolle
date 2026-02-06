@@ -123,7 +123,19 @@ import { PopoverTemplateBoard } from "./PopoverTemplateBoard";
 
     // handle use template
     const handleSelectTemplate = (templateId: string) => {
-        console.log("templateId", templateId);
+        if (!templateId) return;
+        try {
+            setIsOpen(false);
+            setBoardTitle("");
+            setDescription("");
+
+            if (onBoardCreated) {
+                onBoardCreated();
+            }
+            
+        } catch (err) {
+            console.error("Error selecting template:", err);
+        }
     }
   
     return (
@@ -203,6 +215,7 @@ import { PopoverTemplateBoard } from "./PopoverTemplateBoard";
                                 </div>
                             }
                             onSelectTemplate={handleSelectTemplate}
+                            workspaceId={workspaceId ?? ""}
                         />
                         )}
                     </DialogFooter>

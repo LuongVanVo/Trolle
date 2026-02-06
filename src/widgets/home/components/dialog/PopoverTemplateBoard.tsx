@@ -2,17 +2,20 @@ import { useCallback, useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { Button } from "@/shared/ui/button";
 import { FiChevronLeft, FiPlus, FiX } from "react-icons/fi";
-import { useBoardTemplates, type BoardTemplate } from "@/features/board-templates/index";
+import { useBoardTemplates, type BoardTemplate, type CreateBoardFromTemplateRequest } from "@/features/board-templates/index";
+import { useBoardContext } from "@/features/providers/BoardProvider";
 
 interface PopoverTemplateBoardProps {
     trigger: React.ReactNode;
     onSelectTemplate?: (templateId: string) => void;
+    workspaceId: string;
 }
 
-export function PopoverTemplateBoard({ trigger, onSelectTemplate }: PopoverTemplateBoardProps) {
+export function PopoverTemplateBoard({ trigger, onSelectTemplate, workspaceId }: PopoverTemplateBoardProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const { getAllBoardTemplates } = useBoardTemplates();
+    const { handleCreateBoardFromTemplate } = useBoardContext();
     const [templates, setTemplates] = useState<BoardTemplate[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<BoardTemplate | null>(null);
 
@@ -44,11 +47,26 @@ export function PopoverTemplateBoard({ trigger, onSelectTemplate }: PopoverTempl
         []
     );
 
-    const handleCreateBoard = () => {
-        if (selectedTemplate && onSelectTemplate) {
-            onSelectTemplate(selectedTemplate.id);
+    const handleCreateBoard = async () => {
+        if (!selectedTemplate) return;
+
+        setIsLoading(true);
+        try {
+            const request: CreateBoardFromTemplateRequest = {
+                workspaceId: workspaceId,
+                templateId: selectedTemplate.id,
+            };
+            
+            const newBoard = await handleCreateBoardFromTemplate(request);
+            
+            onSelectTemplate?.(newBoard.board?.id ?? "");
             setIsOpen(false);
             setSelectedTemplate(null);
+        } catch (err) {
+            console.error("Error creating board:", err);
+            alert("Failed to create board from template");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -128,10 +146,10 @@ export function PopoverTemplateBoard({ trigger, onSelectTemplate }: PopoverTempl
                     variant="default"
                     className="w-full"
                     onClick={handleCreateBoard}
-                    disabled={!selectedTemplate}
+                    disabled={!selectedTemplate || isLoading}
                 >
                     <FiPlus className="w-4 h-4" />
-                    Create board with template
+                    {isLoading ? "Creating..." : "Create board with template"}
                 </Button>
             </PopoverContent>
         </Popover>
