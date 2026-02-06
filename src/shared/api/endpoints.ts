@@ -86,6 +86,9 @@ export const API_ENDPOINTS = {
     REMOVE_CHECKLIST_ITEM_ON_CHECKLIST:
       "/cards/{cardId}/checklists/{checklistId}/items/{itemId}",
   },
+  BOARD_TEMPLATE: {
+    GET_ALL_BOARD_TEMPLATES: "/board-templates/",
+  },
 };
 
 export const AuthEndpoint = API_ENDPOINTS.AUTH;
@@ -95,3 +98,4 @@ export const BoardEndpoint = API_ENDPOINTS.BOARD;
 export const CardEndpoint = API_ENDPOINTS.CARD;
 export const ListEndpoint = API_ENDPOINTS.LIST;
 export const ChecklistEndpoint = API_ENDPOINTS.CHECKLIST;
+export const BoardTemplateEndpoint = API_ENDPOINTS.BOARD_TEMPLATE;
