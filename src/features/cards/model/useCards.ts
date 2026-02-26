@@ -14,6 +14,8 @@ import type {
   GetAllCommentsOfCardRequest,
   GetAllCommentsOfCardResponse,
   MoveCardToListRequest,
+  ToggleTemplateCardRequest,
+  ToggleTemplateCardResponse,
   UnassignUserFromCardRequest,
   UpdateCardRequest,
   UpdateCardResponse,
@@ -197,6 +199,21 @@ export const useCards = () => {
     }
   };
 
+  // toggle template card
+  const toggleTemplateCard = async (
+    request: ToggleTemplateCardRequest,
+  ): Promise<ToggleTemplateCardResponse> => {
+    try {
+      const data = await cardApi.toggleTemplateCard(request);
+      if (!data) throw new Error("Failed to toggle template card");
+      return data;
+    } catch (err) {
+      const apiError = err as ApiError;
+      console.error(`Failed to toggle template card: ${apiError.message}`);
+      throw apiError;
+    }
+  };
+
   return {
     getAllCardsOfBoard,
     createCard,
@@ -210,5 +227,6 @@ export const useCards = () => {
     updateDueDateOfCard,
     updateCommentOnCard,
     deleteCommentOnCard,
+    toggleTemplateCard,
   };
 };

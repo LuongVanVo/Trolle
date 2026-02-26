@@ -22,6 +22,7 @@ export interface Card {
   cardMembers: CardMember[];
   assigned_users: AssignedUser[];
   status: string;
+  is_template: boolean;
 }
 
 interface CardMember {
@@ -170,4 +171,13 @@ export interface UpdateDueDateOfCardRequest {
 
 export interface UpdateDueDateOfCardResponse {
   card: Card;
+}
+
+export interface ToggleTemplateCardRequest {
+  cardId: string;
+}
+
+export interface ToggleTemplateCardResponse {
+  id: string;
+  isTemplate: boolean;
 }

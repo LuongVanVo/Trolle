@@ -14,6 +14,8 @@ import type {
   GetAllCommentsOfCardRequest,
   GetAllCommentsOfCardResponse,
   MoveCardToListRequest,
+  ToggleTemplateCardRequest,
+  ToggleTemplateCardResponse,
   UnassignUserFromCardRequest,
   UpdateCardRequest,
   UpdateCardResponse,
@@ -141,6 +143,16 @@ export const cardApi = {
     return fetchFactory.patch<UpdateDueDateOfCardResponse>(
       CardEndpoint.UPDATE_DUE_DATE_OF_CARD.replace("{cardId}", cardId),
       body,
+    );
+  },
+
+  // toggle template card
+  toggleTemplateCard: (
+    request: ToggleTemplateCardRequest,
+  ): Promise<ToggleTemplateCardResponse> => {
+    const { cardId } = request;
+    return fetchFactory.patch<ToggleTemplateCardResponse>(
+      CardEndpoint.TOGGLE_TEMPLATE_CARD.replace("{cardId}", cardId),
     );
   },
 };

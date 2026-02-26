@@ -26,6 +26,7 @@ interface CardDetailContextType {
     handleMoveCardToList: (request: MoveCardToListRequest) => Promise<void>;
     handleUpdateDueDateOfCard: (request: UpdateDueDateOfCardRequest) => Promise<UpdateDueDateOfCardResponse>;
     refreshCards: (boardId?: string) => Promise<void>;
+    handleToggleTemplateCard: (cardId: string) => Promise<void>;
 }
 
 const CardDetailContext = createContext<CardDetailContextType | undefined>(undefined);
@@ -36,7 +37,21 @@ export function CardDetailProvider({ children }: { children: React.ReactNode }) 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { getAllCardsOfBoard, createCard, deleteCard, updateCard, assignUserToCard, unassignUserFromCard, createCommentOnCard, getAllCommentsOfCard, moveCardToList, updateDueDateOfCard, updateCommentOnCard, deleteCommentOnCard } = useCards();
+    const { 
+        getAllCardsOfBoard, 
+        createCard, 
+        deleteCard, 
+        updateCard, 
+        assignUserToCard, 
+        unassignUserFromCard, 
+        createCommentOnCard, 
+        getAllCommentsOfCard, 
+        moveCardToList, 
+        updateDueDateOfCard, 
+        updateCommentOnCard, 
+        deleteCommentOnCard, 
+        toggleTemplateCard 
+    } = useCards();
 
     // get data from api
     useEffect(() => {
@@ -318,6 +333,39 @@ export function CardDetailProvider({ children }: { children: React.ReactNode }) 
         if (!id) return;
         await fetchCards(id);
     };
+
+    // toggle template card
+    const handleToggleTemplateCard = async (cardId: string) => {
+        // Get current card
+        const prevCard = cards.find(c => c.id === cardId);
+
+        if (!prevCard) return;
+
+        const newIsTemplate = !prevCard.is_template;
+
+        setCards(prevCards =>
+            prevCards.map(card => card.id == cardId ? { ...card, is_template: newIsTemplate } : card)
+        )
+        try {
+            const response = await toggleTemplateCard({ cardId });
+
+            setCards(prevCards => 
+                prevCards.map(card => card.id == cardId ? { ...card, isTemplate: response.isTemplate } : card)
+            );
+        } catch (err) {
+            console.error(`Failed to toggle template card: ${err}`);
+            // Rollback on error
+            setCards(prevCards =>
+                prevCards.map(card =>
+                card.id === cardId
+                    ? { ...card, is_template: prevCard.is_template }
+                    : card
+                )
+            );
+      
+      throw err;
+        }
+    }
     
     const value: CardDetailContextType = {
         cards,
@@ -339,6 +387,7 @@ export function CardDetailProvider({ children }: { children: React.ReactNode }) 
         handleUpdateCommentOnCard,
         handleDeleteCommentOnCard,
         refreshCards,
+        handleToggleTemplateCard,
     }
 
     return (
