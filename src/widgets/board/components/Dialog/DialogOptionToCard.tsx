@@ -1,8 +1,9 @@
 import { useCardDetailContext } from "@/features/providers/CardDetailProvider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { useMemo } from "react";
-import { FiMoreHorizontal, FiCopy, FiArchive, FiFileText } from "react-icons/fi";
+import { FiMoreHorizontal, FiCopy, FiFileText } from "react-icons/fi";
 import { toast } from "sonner";
+import { MoveCardToAnotherList } from "../Card/components/MoveCardToAnotherList";
 
 interface DialogOptionToCardProps {
     cardId: string;
@@ -45,6 +46,8 @@ export function DialogOptionToCard({ cardId }: DialogOptionToCardProps) {
                         <FiCopy className="w-4 h-4 text-gray-600" />
                         <span className="text-sm font-semibold">Copy card</span>
                     </button>
+
+                    <MoveCardToAnotherList cardId={cardId} />
                     
                     <button className="w-full flex justify-between items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-gray-100 transition-colors text-left" onClick={toggleTemplateCard}>
                         <div className="flex items-center gap-2">
@@ -52,12 +55,6 @@ export function DialogOptionToCard({ cardId }: DialogOptionToCardProps) {
                             <span className="text-sm font-semibold">{currentIsTemplate ? "Remove from templates" : "Save as template"}</span>
                         </div>
                     </button>
-                    
-                    <button className="w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md hover:bg-gray-100 transition-colors text-left">
-                        <FiArchive className="w-4 h-4 text-gray-600" />
-                        <span className="text-sm font-semibold">Archive card</span>
-                    </button>
-                    
                     
                 </div>
             </PopoverContent>
