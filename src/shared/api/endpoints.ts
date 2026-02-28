@@ -82,6 +82,8 @@ export const API_ENDPOINTS = {
     MOVE_LIST_TO_BOARD: "/boards/lists/{listId}/reorder",
     MOVE_LIST_TO_ANOTHER_BOARD: "/boards/lists/{listId}/move",
     COPY_LIST_TO_BOARD: "/boards/lists/{listId}/copy",
+    GET_ALL_ARCHIVED_LISTS_OF_BOARD: "/boards/{boardId}/lists?archived=true",
+    DELETE_LIST_FROM_BOARD_PERMANENTLY: "/boards/{boardId}/lists/{listId}",
   },
   CHECKLIST: {
     GET_ALL_CHECKLISTS_OF_CARD: "/cards/{cardId}/checklists",
