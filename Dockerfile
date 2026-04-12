@@ -16,7 +16,7 @@
     RUN rm -rf /usr/share/nginx/html/*
     
     # Copy thư mục dist từ Stage 1 sang thư mục phục vụ web của Nginx
-    COPY --from=builder /app/dist /usr/share/nginx/html
+    COPY --from=builder /app/dist /usr/share/nginx/html/react-app
     
     # Copy file cấu hình Nginx riêng cho React (Sẽ tạo ở Bước 3)
     COPY nginx.conf /etc/nginx/conf.d/default.conf
