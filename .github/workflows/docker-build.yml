@@ -15,7 +15,7 @@ jobs:
       # --- BƯỚC THÊM MỚI: Tạo file .env cho Vite ---
       - name: Create .env file for Vite
         run: |
-          echo "VITE_API_BASE_URL=http://luongvanvo.id.vn/api" >> .env
+          echo "VITE_API_BASE_URL=https://luongvanvo.id.vn/api" >> .env
           echo "VITE_CLOUDINARY_CLOUD_NAME=dnswn0tfq" >> .env
           echo "VITE_CLOUDINARY_UPLOAD_PRESET=Trolle" >> .env
       # ---------------------------------------------
