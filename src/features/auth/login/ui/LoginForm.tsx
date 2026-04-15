@@ -19,8 +19,9 @@ function LoginForm({
 }: {
   className?: string;
 } & React.ComponentProps<"form">): JSX.Element {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Hardcode email and password for HR to test
+  const [email, setEmail] = useState(import.meta.env.VITE_TEST_EMAIL ?? "");
+  const [password, setPassword] = useState(import.meta.env.VITE_TEST_PASSWORD ?? "");
   const { isLoading, login } = useAuth();
   const { refreshUser } = useUser();
   const navigate = useNavigate();
@@ -81,6 +82,7 @@ function LoginForm({
           placeholder="your@gmail.com"
           className="bg-[#1E1E1E] text-white border-gray-600"
           required
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
@@ -101,6 +103,7 @@ function LoginForm({
             type={showPassword ? "text" : "password"}
             className="bg-[#1E1E1E] text-white border-gray-600 pr-10"
             required
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
           
