@@ -39,6 +39,7 @@ interface CardDetailContextType {
     handleGetAllAttachmentsOfCard: (request: GetAttachmentOfCardRequest) => Promise<GetAttachmentOfCardResponse>;
     handleDeleteAttachment: (request: DeleteAttachmentRequest) => Promise<void>;
     handleSetCardCover: (request: SetCardCoverRequest) => Promise<SetCardCoverResponse>;
+    updateCardLabels: (cardId: string, labels: any[]) => void;
 }
 
 const CardDetailContext = createContext<CardDetailContextType | undefined>(undefined);
@@ -594,6 +595,14 @@ export function CardDetailProvider({ children }: { children: React.ReactNode }) 
         }
       };
 
+      const updateCardLabels = (cardId: string, labels: any[]) => {
+        setCards(prevCards =>
+            prevCards.map(card =>
+                card.id === cardId ? { ...card, labels } : card
+            )
+        );
+      };
+
     const value: CardDetailContextType = {
         cards,
         isLoading,
@@ -627,6 +636,7 @@ export function CardDetailProvider({ children }: { children: React.ReactNode }) 
         handleGetAllAttachmentsOfCard,
         handleDeleteAttachment,
         handleSetCardCover,
+        updateCardLabels,
     }
 
     return (
