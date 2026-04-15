@@ -12,6 +12,14 @@ interface CardInListProps {
     index: number;
 }
 
+function getTextColor(hex: string) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.5 ? '#1f2937' : '#ffffff';
+}
+
 export function CardInList({ card, listName, index }: CardInListProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -51,9 +59,33 @@ export function CardInList({ card, listName, index }: CardInListProps) {
                             </span>
                         </div>
                     )}
-                    <h4 className="text-sm font-medium text-gray-900 mb-3 mt-6">
+                    {card.labels && card.labels.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1 mt-6 mb-2">
+                            {card.labels.slice(0, 2).map((label: any) => (
+                                <span
+                                    key={label.id}
+                                    className="inline-flex items-center px-2 py-0.5 rounded-sm text-[11px] font-semibold truncate max-w-[90px]"
+                                    style={{
+                                        backgroundColor: label.color,
+                                        color: getTextColor(label.color),
+                                    }}
+                                    title={label.name}
+                                >
+                                    {label.name}
+                                </span>
+                            ))}
+                            {card.labels.length > 2 && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[11px] font-semibold bg-gray-100 text-gray-600">
+                                    +{card.labels.length - 2}
+                                </span>
+                            )}
+                        </div>
+                        )}
+                        <h4 className={`text-sm font-medium text-gray-900 mb-3 ${
+                        card.labels && card.labels.length > 0 ? '' : 'mt-6'
+                        }`}>
                         {card.title}
-                    </h4>
+                        </h4>
                     {card.description && (
                         <p className="text-xs text-gray-600 mb-3">
                             {card.description}

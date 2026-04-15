@@ -6,6 +6,7 @@ import { FiTag, FiX } from "react-icons/fi";
 import { TAG_COLORS, type TagColorId } from "@/shared/constants/tagColors";
 import { useLabels } from "@/features/labels/index";
 import { useLabelContext } from "@/features/providers/LabelProvider";
+import { useCardDetailContext } from "@/features/providers/CardDetailProvider";
 
 interface AddTagToCardProps {   
     cardId: string;
@@ -19,6 +20,7 @@ export function AddTagToCard({ cardId, boardId, onTagAdded }: AddTagToCardProps)
     const [isOpen, setIsOpen] = useState(false);
 
     const { handleAddLabelOnBoard, labelsOfBoard, handleAddLabelToCard, handleRemoveLabelFromCard } = useLabelContext();
+    const { updateCardLabels } = useCardDetailContext();
 
     const { getLabelsOfCard, getAvailableLabelsOfBoard } = useLabels();
     const [cardLabels, setCardLabels] = useState<any[]>([]);
@@ -36,9 +38,10 @@ export function AddTagToCard({ cardId, boardId, onTagAdded }: AddTagToCardProps)
             // lấy labels của card
             const cardLabelsData = await getLabelsOfCard({ cardId });
             const cardLabelsArray = Array.isArray(cardLabelsData) ? cardLabelsData : [cardLabelsData];
+            const filtered = cardLabelsArray.filter(Boolean);
             setCardLabels(cardLabelsArray.filter(Boolean));
+            updateCardLabels(cardId, filtered); 
 
-            // lấy labels có sẵn của board
             const availableData = await getAvailableLabelsOfBoard({ cardId });
             const availableArray = Array.isArray(availableData) ? availableData : [availableData];
             setAvailableLabels(availableArray.filter(Boolean));
@@ -54,6 +57,8 @@ export function AddTagToCard({ cardId, boardId, onTagAdded }: AddTagToCardProps)
             return boardLabel || cardLabel;
         })
         .filter(Boolean);
+
+    
 
     // tạo label mới
     const handleCreateNewLabel = async () => {
