@@ -11,5 +11,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: '/react-app/'
+  base: '/react-app/',
+  build: {
+    outDir: 'dist/react-app'
+  }
 })
